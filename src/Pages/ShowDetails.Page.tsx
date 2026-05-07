@@ -9,6 +9,7 @@ type ShowDetailPageProps = WithRouterProps & {
 
 const ShowDetailPage: FC<ShowDetailPageProps> = ({ params , show }) => {
   const defaultImg='https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80'
+  
   return (
     <div className="mt-2">
       <h2 className="text-4xl font-semibold tracking-wide">{show.name}</h2>
