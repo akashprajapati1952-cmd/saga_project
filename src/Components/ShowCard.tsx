@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Show } from "../models";
 interface ShowCardProps {
   show: Show;
 }
@@ -14,7 +15,7 @@ function ShowCard({ show }: ShowCardProps) {
       />
       <div className="flex flex-col justify-between p-6 space-y-8">
         <div className="space-y-2">
-          <h2 className="text-3xl font-semibold tracking-wide">The Witcher</h2>
+          <h2 className="text-3xl font-semibold tracking-wide">{show.name}</h2>
           <p>
             {show.summary}
           </p>

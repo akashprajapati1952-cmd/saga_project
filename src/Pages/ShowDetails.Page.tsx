@@ -1,20 +1,37 @@
-import { FC } from "react";
+import { FC, useEffect,useState } from "react";
 import CastCard from "../Components/CastCard";
 import GenrePill from "../Components/GenrePill";
 import withRouter, { WithRouterProps } from "../hocs/withRouter";
+import { searchShowCast, searchShowWithId } from "../apis";
+import LoadingSpinner from "../Components/LoadingSpinner";
+import { Cast, Show } from "../models";
+import { connect } from "react-redux";
+import { State } from "../store";
+import { loadShowDetail } from "../Actions/show";
 
-type ShowDetailPageProps = WithRouterProps & {
-  show: Show
-};
-
-const ShowDetailPage: FC<ShowDetailPageProps> = ({ params , show }) => {
+type ShowDetailPageProps = WithRouterProps & {}
+type Props= ShowDetailPageProps & redux_props
+const ShowDetailPage: FC<Props> = ({ params  }) => {
+  const [show, setShow]=useState<Show>()
+  const [casts, setCasts]=useState<Cast[]>([])
   const defaultImg='https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80'
-  
+
+  useEffect(()=>{
+    searchShowWithId(+params.showId).then((data)=>{
+      setShow(data)
+    })
+    searchShowCast(+params.showId).then((data)=>{
+      setCasts(data)
+    })
+  },[params.showId])
+  if(!show){
+    return <LoadingSpinner/>
+  }
   return (
     <div className="mt-2">
       <h2 className="text-4xl font-semibold tracking-wide">{show.name}</h2>
       <div className="flex space-x-3 my-2 bg-gray-300 p-2 rounded-sm">
-        {show.genres.map((item)=><GenrePill name={item} />)}
+        {show.genres.map((item)=><GenrePill key={item} name={item} />)}
         
       </div>
       <div className="mt-2 flex">
@@ -27,67 +44,32 @@ const ShowDetailPage: FC<ShowDetailPageProps> = ({ params , show }) => {
           <p>
             {show.summary}
           </p>
-          <p className="mt-2 text-lg font-bold border border-gray-700 rounded-md px-2 py-1 max-w-max">
+          {show.rating.average && <p className="mt-2 text-lg font-bold border border-gray-700 rounded-md px-2 py-1 max-w-max">
             Rating: <span className="text-gray-700">{show.rating.average}/10</span>
-          </p>
+          </p>}
         </div>
       </div>
 
-      <div className="mt-2">
+      {casts.length!==0 && <div className="mt-2">
         <h4 className="text-2xl font-semibold tracking-wide">Cast</h4>
         <div className="flex flex-wrap">
-          <CastCard
-            avatarLink="https://static.tvmaze.com/uploads/images/medium_portrait/218/545468.jpg"
-            name="Henry Cavill"
-          />
-          <CastCard
-            avatarLink="https://static.tvmaze.com/uploads/images/medium_portrait/218/545472.jpg"
-            name="Freya Allan"
-          />
-          <CastCard
-            avatarLink="https://static.tvmaze.com/uploads/images/medium_portrait/218/545470.jpg"
-            name="Anya Chalotra"
-          />
-          <CastCard
-            avatarLink="https://static.tvmaze.com/uploads/images/medium_portrait/232/581040.jpg"
-            name="Mimi Ndiweni"
-          />
-          <CastCard
-            avatarLink="https://static.tvmaze.com/uploads/images/medium_portrait/218/545468.jpg"
-            name="Henry Cavill"
-          />
-          <CastCard
-            avatarLink="https://static.tvmaze.com/uploads/images/medium_portrait/218/545472.jpg"
-            name="Freya Allan"
-          />
-          <CastCard
-            avatarLink="https://static.tvmaze.com/uploads/images/medium_portrait/218/545470.jpg"
-            name="Anya Chalotra"
-          />
-          <CastCard
-            avatarLink="https://static.tvmaze.com/uploads/images/medium_portrait/232/581040.jpg"
-            name="Mimi Ndiweni"
-          />
-          <CastCard
-            avatarLink="https://static.tvmaze.com/uploads/images/medium_portrait/218/545468.jpg"
-            name="Henry Cavill"
-          />
-          <CastCard
-            avatarLink="https://static.tvmaze.com/uploads/images/medium_portrait/218/545472.jpg"
-            name="Freya Allan"
-          />
-          <CastCard
-            avatarLink="https://static.tvmaze.com/uploads/images/medium_portrait/218/545470.jpg"
-            name="Anya Chalotra"
-          />
-          <CastCard
-            avatarLink="https://static.tvmaze.com/uploads/images/medium_portrait/232/581040.jpg"
-            name="Mimi Ndiweni"
-          />
+          {casts.map((cast)=><CastCard
+            key={cast.id}
+            avatarLink={cast.image.medium || cast.image.original || defaultImg}
+            name={cast.name}
+          />)}
+          
         </div>
-      </div>
+      </div>}
     </div>
   );
 };
 
-export default withRouter(ShowDetailPage);
+const mapStateToProps=(state: State)=>({
+    show: loadShowDetail(state)
+})
+const mapDispatchToProps={}
+
+const ConnectedComponent= connect(mapStateToProps, mapDispatchToProps)
+
+export default withRouter(ConnectedComponent(ShowDetailPage));
