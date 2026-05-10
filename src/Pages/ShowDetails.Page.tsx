@@ -1,28 +1,22 @@
-import { FC, useEffect,useState } from "react";
+import { FC, useEffect } from "react";
 import CastCard from "../Components/CastCard";
 import GenrePill from "../Components/GenrePill";
 import withRouter, { WithRouterProps } from "../hocs/withRouter";
-import { searchShowCast, searchShowWithId } from "../apis";
 import LoadingSpinner from "../Components/LoadingSpinner";
-import { Cast, Show } from "../models";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 import { State } from "../store";
-import { loadShowDetail } from "../Actions/show";
+import { showDetailSelector } from "../Selectors/shows";
+import { loadShowDetailAction } from "../Reducers/show";
 
 type ShowDetailPageProps = WithRouterProps & {}
 type Props= ShowDetailPageProps & redux_props
-const ShowDetailPage: FC<Props> = ({ params  }) => {
-  const [show, setShow]=useState<Show>()
-  const [casts, setCasts]=useState<Cast[]>([])
+
+const ShowDetailPage: FC<Props> = ({ params, showAndCasts, loadShowDetails }) => {
   const defaultImg='https://img.magnific.com/free-vector/illustration-gallery-icon_53876-27002.jpg?semt=ais_hybrid&w=740&q=80'
+  const {show, casts}= showAndCasts
 
   useEffect(()=>{
-    searchShowWithId(+params.showId).then((data)=>{
-      setShow(data)
-    })
-    searchShowCast(+params.showId).then((data)=>{
-      setCasts(data)
-    })
+    loadShowDetails(+params.showId!)
   },[params.showId])
   if(!show){
     return <LoadingSpinner/>
@@ -55,7 +49,7 @@ const ShowDetailPage: FC<Props> = ({ params  }) => {
         <div className="flex flex-wrap">
           {casts.map((cast)=><CastCard
             key={cast.id}
-            avatarLink={cast.image.medium || cast.image.original || defaultImg}
+            avatarLink={cast.image?.medium || cast.image?.original || 'https://media.istockphoto.com/id/2151669184/vector/vector-flat-illustration-in-grayscale-avatar-user-profile-person-icon-gender-neutral.jpg?s=612x612&w=0&k=20&c=UEa7oHoOL30ynvmJzSCIPrwwopJdfqzBs0q69ezQoM8='}
             name={cast.name}
           />)}
           
@@ -65,11 +59,14 @@ const ShowDetailPage: FC<Props> = ({ params  }) => {
   );
 };
 
-const mapStateToProps=(state: State)=>({
-    show: loadShowDetail(state)
+const mapStateToProps=(state: State, ownProps: Partial<ShowDetailPageProps>)=>({
+    showAndCasts: showDetailSelector(state, +ownProps.params?.showId!)
 })
-const mapDispatchToProps={}
+const mapDispatchToProps={
+  loadShowDetails: loadShowDetailAction 
+}
 
 const ConnectedComponent= connect(mapStateToProps, mapDispatchToProps)
+type redux_props= ConnectedProps<typeof ConnectedComponent>
 
 export default withRouter(ConnectedComponent(ShowDetailPage));

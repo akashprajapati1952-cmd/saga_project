@@ -30,10 +30,29 @@ export const loadingSelector=(state: State)=>{
     return state.shows.loading
 }
 
+const showIdSelector=(state: State, showId: number)=>{
+    return showId
+}
+const castsSelector=(state: State)=>{
+    return state.shows.casts
+}
+const showCastsSelector=(state: State)=>{
+    return state.shows.showCasts
+}
+
 export const showDetailSelector=createSelector(
     showsMapSelector,
-    (showsMap, showId)=>{
-        return showsMap[showId]
+    showIdSelector,
+    castsSelector,
+    showCastsSelector,
+    (showsMap, showId, casts, showCastsMap)=>{
+        const show =showsMap[showId]
+        const castIds= showCastsMap[showId]
+        const showCasts= castIds ? castIds.map(castId=>casts[castId]) : []
+        return {show, casts: showCasts}
+
     }
+    
 )
+
 

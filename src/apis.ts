@@ -13,8 +13,8 @@ export async function searchShows(query: string): Promise<any> {
 
 export async function searchShowWithId(showId: number){
     const res = await axios.get("https://api.tvmaze.com/shows/"+showId)
-    
-    return (res.data as Show)
+    const cast= await searchShowCast(showId)
+    return {show: res.data , cast}
 }
 export async function searchShowCast(showId: number){
     const res = await axios.get("https://api.tvmaze.com/shows/"+showId+"/cast")

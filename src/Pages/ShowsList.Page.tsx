@@ -1,12 +1,11 @@
-import { FC, useEffect, useState } from "react";
-import {Dispatch} from "redux"
+import { FC, useEffect } from "react";
 import SearchBar from "../Components/SearchBar";
 import ShowCard from "../Components/ShowCard";
 import { connect, ConnectedProps} from "react-redux";
 import { State } from "../store";
 import { loadingSelector, querySelector, showsListSelector } from "../Selectors/shows";
-import { loadShows, setQuery } from "../Actions/show";
 import LoadingSpinner from "../Components/LoadingSpinner";
+import { loadShowsAction, setQueryAction } from "../Reducers/show";
 
 type  ownProps={}
 
@@ -38,8 +37,8 @@ const mapStateToProps=(state: State)=>({
 })
 
 const mapDispatchToProps={
-    handleQueryChange: setQuery,
-    loadShows: loadShows
+    handleQueryChange: setQueryAction,
+    loadShows: loadShowsAction
 }
 const connectedComponent= connect(mapStateToProps, mapDispatchToProps)
 
